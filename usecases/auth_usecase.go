@@ -17,7 +17,7 @@ func (au AuthUsecase) Signup(user domain.User) (*domain.User, error) {
 		return nil, e
 	}
 	user.Password = hashedPassword
-	user.Events = []domain.Event{}
+
 	u, err := au.AuthRepo.Save(user)
 
 	if err != nil {

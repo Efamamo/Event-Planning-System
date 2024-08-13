@@ -3,7 +3,6 @@ package infrastructure
 import (
 	"errors"
 	"fmt"
-	"os"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -11,19 +10,30 @@ import (
 
 type Token struct{}
 
-func (tok Token) ValidateToken(t string) (*jwt.Token, error) {
+func (tok Token) GetUserName(t string) (string, error) {
 	token, e := jwt.Parse(t, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
 
-		return []byte(os.Getenv("JwtSecret")), nil
+		return []byte("JwtSecret"), nil
 	})
 
 	if e != nil || !token.Valid {
-		return nil, errors.New("Unauthorized")
+		return "", errors.New("Unauthorized")
 	}
-	return token, nil
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+
+	if !ok || !token.Valid {
+		return "", errors.New("Unauthorized")
+	}
+
+	username, ok := claims["username"].(string)
+	if !ok || username == "" {
+		return "", errors.New("Unauthorized")
+	}
+	return username, nil
 }
 
 func (tok Token) GenerateToken(username string) (string, error) {
@@ -34,7 +44,7 @@ func (tok Token) GenerateToken(username string) (string, error) {
 		"exp":      expirationTime,
 	})
 
-	jwtToken, e := token.SignedString([]byte(os.Getenv("JwtSecret")))
+	jwtToken, e := token.SignedString([]byte("JwtSecret"))
 
 	if e != nil {
 		return "", errors.New("Cant Sign Token")
