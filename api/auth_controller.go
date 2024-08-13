@@ -52,3 +52,41 @@ func (ac AuthController) Signup(c *gin.Context) {
 	c.IndentedJSON(http.StatusCreated, u)
 	return
 }
+
+func (ac AuthController) Login(c *gin.Context) {
+	var user domain.User
+	err := c.ShouldBindJSON(&user)
+
+	if err != nil {
+		var validationErrors validator.ValidationErrors
+		if errors, ok := err.(validator.ValidationErrors); ok {
+			validationErrors = errors
+		}
+
+		errorMessages := make(map[string]string)
+		for _, e := range validationErrors {
+
+			field := e.Field()
+
+			switch field {
+			case "Username":
+				errorMessages["username"] = "Username is required."
+			case "Password":
+				errorMessages["password"] = "Password is required."
+
+			}
+		}
+
+		c.JSON(http.StatusBadRequest, gin.H{"errors": errorMessages})
+		return
+	}
+
+	tok, err := ac.AuthService.Login(user)
+
+	if err != nil {
+		c.IndentedJSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.IndentedJSON(http.StatusAccepted, gin.H{"accessToken": tok})
+}

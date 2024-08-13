@@ -7,7 +7,7 @@ import (
 
 func StartServer(authController api.AuthController) {
 	r := gin.Default()
-	r.POST("/login")
+	r.POST("/login", authController.Login)
 	r.POST("/signup", authController.Signup)
 	// r.POST("/logout")
 

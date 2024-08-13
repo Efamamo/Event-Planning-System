@@ -32,7 +32,8 @@ func main() {
 
 	authRepo := repositories.NewUserRepo(client)
 	passwordService := infrastructure.PasswordService{}
-	authUsecase := usecases.AuthUsecase{AuthRepo: authRepo, PasswordService: passwordService}
+	jwtService := infrastructure.Token{}
+	authUsecase := usecases.AuthUsecase{AuthRepo: authRepo, PasswordService: passwordService, JWTService: jwtService}
 	authController := api.AuthController{AuthService: authUsecase}
 	route.StartServer(authController)
 

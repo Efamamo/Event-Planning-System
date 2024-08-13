@@ -2,9 +2,11 @@ package repositories
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/Efamamo/Event-Planning-System/domain"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -31,6 +33,21 @@ func (ar AuthRepository) Save(user domain.User) (*domain.User, error) {
 
 	if e != nil {
 		return nil, e
+	}
+
+	return &user, nil
+}
+
+func (ar AuthRepository) FindUser(username string) (*domain.User, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	filter := bson.M{"username": username}
+
+	var user domain.User
+	e := ar.collection.FindOne(ctx, filter).Decode(&user)
+	if e != nil {
+		return nil, errors.New("User Not Found")
 	}
 
 	return &user, nil
