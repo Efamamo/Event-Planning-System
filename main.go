@@ -6,6 +6,7 @@ import (
 
 	"github.com/Efamamo/Event-Planning-System/api"
 	"github.com/Efamamo/Event-Planning-System/api/route"
+	"github.com/Efamamo/Event-Planning-System/infrastructure"
 	"github.com/Efamamo/Event-Planning-System/infrastructure/repositories"
 	"github.com/Efamamo/Event-Planning-System/usecases"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -30,7 +31,8 @@ func main() {
 	}
 
 	authRepo := repositories.NewUserRepo(client)
-	authUsecase := usecases.AuthUsecase{AuthRepo: authRepo}
+	passwordService := infrastructure.PasswordService{}
+	authUsecase := usecases.AuthUsecase{AuthRepo: authRepo, PasswordService: passwordService}
 	authController := api.AuthController{AuthService: authUsecase}
 	route.StartServer(authController)
 
