@@ -35,6 +35,12 @@ func main() {
 	jwtService := infrastructure.Token{}
 	authUsecase := usecases.AuthUsecase{AuthRepo: authRepo, PasswordService: passwordService, JWTService: jwtService}
 	authController := api.AuthController{AuthService: authUsecase}
-	route.StartServer(authController)
+
+
+	eventRepo := repositories.NewEventsRepo(client)
+	eventUsecase := usecases.EventsService{EventsRepo: eventRepo}
+	eventController := api.EventsController{EventsService: eventUsecase,JWTService: jwtService}
+
+	route.StartServer(authController, eventController)
 
 }
