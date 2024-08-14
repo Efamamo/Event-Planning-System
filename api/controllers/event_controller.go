@@ -1,18 +1,18 @@
-package api
+package controller
 
 import (
 	"net/http"
 	"strings"
 
 	"github.com/Efamamo/Event-Planning-System/domain"
-	"github.com/Efamamo/Event-Planning-System/usecases"
+	"github.com/Efamamo/Event-Planning-System/usecases/interfaces"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 )
 
 type EventsController struct {
-	EventsService IEventsService
-	JWTService    usecases.IJWTService
+	EventsService interfaces.IEventsService
+	JWTService    interfaces.IJWTService
 }
 
 func (ec EventsController) GetEvents(c *gin.Context) {

@@ -2,12 +2,13 @@ package usecases
 
 import (
 	"github.com/Efamamo/Event-Planning-System/domain"
+	"github.com/Efamamo/Event-Planning-System/usecases/interfaces"
 )
 
 type AuthUsecase struct {
-	AuthRepo        IAuthRepository
-	PasswordService IPassword
-	JWTService      IJWTService
+	AuthRepo        interfaces.IAuthRepository
+	PasswordService interfaces.IPassword
+	JWTService      interfaces.IJWTService
 }
 
 func (au AuthUsecase) Signup(user domain.User) (*domain.User, error) {

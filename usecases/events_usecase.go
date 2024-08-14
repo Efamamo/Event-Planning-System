@@ -4,11 +4,12 @@ import (
 	"errors"
 
 	"github.com/Efamamo/Event-Planning-System/domain"
+	"github.com/Efamamo/Event-Planning-System/usecases/interfaces"
 )
 
 type EventsService struct {
-	EventsRepo IEventsRepo
-	AuthRepo   IAuthRepository
+	EventsRepo interfaces.IEventsRepo
+	AuthRepo   interfaces.IAuthRepository
 }
 
 func (es EventsService) GetEvents(username string) (*[]domain.Event, error) {

@@ -1,12 +1,12 @@
 package route
 
 import (
-	"github.com/Efamamo/Event-Planning-System/api"
+	controller "github.com/Efamamo/Event-Planning-System/api/controllers"
 	"github.com/Efamamo/Event-Planning-System/infrastructure"
 	"github.com/gin-gonic/gin"
 )
 
-func StartServer(authController api.AuthController, eventController api.EventsController) {
+func StartServer(authController controller.AuthController, eventController controller.EventsController) {
 	r := gin.Default()
 	r.POST("/login", authController.Login)
 	r.POST("/signup", authController.Signup)

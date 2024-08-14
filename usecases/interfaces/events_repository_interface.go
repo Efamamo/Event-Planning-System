@@ -1,4 +1,5 @@
-package usecases
+package interfaces
+
 
 import "github.com/Efamamo/Event-Planning-System/domain"
 

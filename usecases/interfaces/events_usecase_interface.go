@@ -1,4 +1,4 @@
-package api
+package interfaces
 
 import "github.com/Efamamo/Event-Planning-System/domain"
 

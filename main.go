@@ -4,7 +4,7 @@ import (
 	"context"
 	"log"
 
-	"github.com/Efamamo/Event-Planning-System/api"
+	controller "github.com/Efamamo/Event-Planning-System/api/controllers"
 	"github.com/Efamamo/Event-Planning-System/api/route"
 	"github.com/Efamamo/Event-Planning-System/infrastructure"
 	"github.com/Efamamo/Event-Planning-System/infrastructure/repositories"
@@ -34,11 +34,11 @@ func main() {
 	passwordService := infrastructure.PasswordService{}
 	jwtService := infrastructure.Token{}
 	authUsecase := usecases.AuthUsecase{AuthRepo: authRepo, PasswordService: passwordService, JWTService: jwtService}
-	authController := api.AuthController{AuthService: authUsecase}
+	authController := controller.AuthController{AuthService: authUsecase}
 
 	eventRepo := repositories.NewEventsRepo(client)
 	eventUsecase := usecases.EventsService{EventsRepo: eventRepo, AuthRepo: authRepo}
-	eventController := api.EventsController{EventsService: eventUsecase, JWTService: jwtService}
+	eventController := controller.EventsController{EventsService: eventUsecase, JWTService: jwtService}
 
 	route.StartServer(authController, eventController)
 

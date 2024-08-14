@@ -1,16 +1,17 @@
-package api
+package controller
 
 import (
 	"fmt"
 	"net/http"
 
 	"github.com/Efamamo/Event-Planning-System/domain"
+	"github.com/Efamamo/Event-Planning-System/usecases/interfaces"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 )
 
 type AuthController struct {
-	AuthService IUserUsecase
+	AuthService interfaces.IUserUsecase
 }
 
 func (ac AuthController) Signup(c *gin.Context) {
