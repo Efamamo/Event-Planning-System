@@ -26,4 +26,3 @@ func (ps PasswordService) ComparePassword(euPassword string, uPassword string) (
 	return true, nil
 }
 
-//66bc7035d7f86a77e1456668

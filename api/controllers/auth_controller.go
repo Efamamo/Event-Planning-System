@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/Efamamo/Event-Planning-System/domain"
@@ -45,13 +44,12 @@ func (ac AuthController) Signup(c *gin.Context) {
 	u, err := ac.AuthService.Signup(user)
 
 	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Invalid Input"})
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	fmt.Println(u)
 
 	c.IndentedJSON(http.StatusCreated, u)
-	return
+
 }
 
 func (ac AuthController) Login(c *gin.Context) {

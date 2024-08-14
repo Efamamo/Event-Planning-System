@@ -12,7 +12,6 @@ import (
 
 type EventsController struct {
 	EventsService interfaces.IEventsService
-	JWTService    interfaces.IJWTService
 }
 
 func (ec EventsController) GetEvents(c *gin.Context) {
@@ -97,7 +96,7 @@ func (ec EventsController) UpdateEvent(c *gin.Context) {
 		if e.Error() == "unauthorized" {
 			c.IndentedJSON(http.StatusUnauthorized, gin.H{"error": e.Error()})
 			return
-		} else if e != nil {
+		} else {
 			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Invalid Id Format"})
 			return
 		}

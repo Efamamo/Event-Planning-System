@@ -10,7 +10,6 @@ func StartServer(authController controller.AuthController, eventController contr
 	r := gin.Default()
 	r.POST("/login", authController.Login)
 	r.POST("/signup", authController.Signup)
-	// r.POST("/logout")
 
 	r.GET("/events", infrastructure.AuthMiddleware(), eventController.GetEvents)
 	r.POST("/events", infrastructure.AuthMiddleware(), eventController.AddEvent)
