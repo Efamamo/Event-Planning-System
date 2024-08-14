@@ -8,14 +8,14 @@ import (
 	"github.com/dgrijalva/jwt-go"
 )
 
-type Token struct{}
+type Token struct {
+}
 
 func (tok Token) ValidateToken(t string) (*jwt.Token, error) {
 	token, e := jwt.Parse(t, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
-
 		return []byte("JwtSecret"), nil
 	})
 

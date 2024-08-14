@@ -10,9 +10,20 @@ import (
 type EventsService struct {
 	EventsRepo interfaces.IEventsRepo
 	AuthRepo   interfaces.IAuthRepository
+	JWTService interfaces.IJWTService
 }
 
-func (es EventsService) GetEvents(username string) (*[]domain.Event, error) {
+func (es EventsService) GetEvents(authPart string) (*[]domain.Event, error) {
+
+	token, err := es.JWTService.ValidateToken(authPart)
+	if err != nil {
+		return nil, errors.New("unauthorized")
+	}
+	username, err := es.JWTService.GetUserName(token)
+
+	if err != nil {
+		return nil, errors.New("unauthorized")
+	}
 
 	user, err := es.AuthRepo.FindUser(username)
 
@@ -29,9 +40,17 @@ func (es EventsService) GetEvents(username string) (*[]domain.Event, error) {
 	return ev, nil
 }
 
-func (es EventsService) GetEventById(id string, username string) (*domain.Event, error) {
-	ev, err := es.EventsRepo.GetEventById(id)
+func (es EventsService) GetEventById(id string, authPart string) (*domain.Event, error) {
+	token, err := es.JWTService.ValidateToken(authPart)
+	if err != nil {
+		return nil, err
+	}
+	username, err := es.JWTService.GetUserName(token)
+	if err != nil {
+		return nil, err
+	}
 
+	ev, err := es.EventsRepo.GetEventById(id)
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +61,17 @@ func (es EventsService) GetEventById(id string, username string) (*domain.Event,
 
 	return ev, nil
 }
-func (es EventsService) AddEvent(username string, event domain.Event) (*domain.Event, error) {
+func (es EventsService) AddEvent(authPart string, event domain.Event) (*domain.Event, error) {
+	token, err := es.JWTService.ValidateToken(authPart)
+	if err != nil {
+		return nil, errors.New("unauthorized")
+	}
+
+	username, err := es.JWTService.GetUserName(token)
+
+	if err != nil {
+		return nil, errors.New("unauthorized")
+	}
 
 	user, err := es.AuthRepo.FindUser(username)
 
@@ -51,8 +80,8 @@ func (es EventsService) AddEvent(username string, event domain.Event) (*domain.E
 	}
 
 	event.Owner = user.Username
-	ev, err := es.EventsRepo.AddEvent(user.Username, event)
 
+	ev, err := es.EventsRepo.AddEvent(user.Username, event)
 	if err != nil {
 		return nil, err
 	}
@@ -60,18 +89,9 @@ func (es EventsService) AddEvent(username string, event domain.Event) (*domain.E
 	return ev, nil
 }
 
-func (es EventsService) UpdateEvent(id string, event domain.Event, username string) error {
+func (es EventsService) UpdateEvent(id string, event domain.Event) error {
 
-	e, err := es.EventsRepo.GetEventById(id)
-	if err != nil {
-		return err
-	}
-
-	if e.Owner != username {
-		return errors.New("unauthorized")
-	}
-
-	err = es.EventsRepo.UpdateEvent(id, event)
+	err := es.EventsRepo.UpdateEvent(id, event)
 
 	if err != nil {
 		return err
@@ -79,21 +99,54 @@ func (es EventsService) UpdateEvent(id string, event domain.Event, username stri
 	return nil
 }
 
-func (es EventsService) DeleteEvent(id string, username string) error {
-	e, err := es.EventsRepo.GetEventById(id)
+func (es EventsService) DeleteEvent(id string, authPart string) error {
+	token, err := es.JWTService.ValidateToken(authPart)
+	if err != nil {
+		return errors.New("unauthorized")
+	}
 
+	username, err := es.JWTService.GetUserName(token)
 	if err != nil {
 		return err
 	}
-	if e.Owner != username {
+
+	ev, err := es.EventsRepo.GetEventById(id)
+
+	if err != nil {
+		return errors.New("unauthorized")
+	}
+
+	if ev.Owner != username {
 		return errors.New("unauthorized")
 	}
 
 	err = es.EventsRepo.DeleteEvent(id)
-
 	if err != nil {
 		return err
 	}
+
 	return nil
 
+}
+
+func (es EventsService) CheckValidity(id string, authPart string) error {
+	token, err := es.JWTService.ValidateToken(authPart)
+	if err != nil {
+		return err
+	}
+
+	username, err := es.JWTService.GetUserName(token)
+	if err != nil {
+		return err
+	}
+
+	ev, err := es.EventsRepo.GetEventById(id)
+	if err != nil {
+		return err
+	}
+
+	if ev.Owner != username {
+		return errors.New("unauthorized")
+	}
+	return nil
 }

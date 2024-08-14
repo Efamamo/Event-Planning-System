@@ -31,13 +31,13 @@ func main() {
 	}
 
 	authRepo := repositories.NewUserRepo(client)
+	eventRepo := repositories.NewEventsRepo(client)
 	passwordService := infrastructure.PasswordService{}
 	jwtService := infrastructure.Token{}
 	authUsecase := usecases.AuthUsecase{AuthRepo: authRepo, PasswordService: passwordService, JWTService: jwtService}
 	authController := controller.AuthController{AuthService: authUsecase}
 
-	eventRepo := repositories.NewEventsRepo(client)
-	eventUsecase := usecases.EventsService{EventsRepo: eventRepo, AuthRepo: authRepo}
+	eventUsecase := usecases.EventsService{EventsRepo: eventRepo, AuthRepo: authRepo, JWTService: jwtService}
 	eventController := controller.EventsController{EventsService: eventUsecase, JWTService: jwtService}
 
 	route.StartServer(authController, eventController)

@@ -18,19 +18,8 @@ type EventsController struct {
 func (ec EventsController) GetEvents(c *gin.Context) {
 	authHeader := c.GetHeader("Authorization")
 	authParts := strings.Split(authHeader, " ")
-	token, err := ec.JWTService.ValidateToken(authParts[1])
-	if err != nil {
-		c.IndentedJSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
-		return
-	}
-	username, err := ec.JWTService.GetUserName(token)
 
-	if err != nil {
-		c.IndentedJSON(401, gin.H{"message": "unauthorized"})
-		return
-	}
-
-	events, err := ec.EventsService.GetEvents(username)
+	events, err := ec.EventsService.GetEvents(authParts[1])
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err})
 		return
@@ -43,18 +32,8 @@ func (ec EventsController) GetEventById(c *gin.Context) {
 	id := c.Param("id")
 	authHeader := c.GetHeader("Authorization")
 	authParts := strings.Split(authHeader, " ")
-	token, err := ec.JWTService.ValidateToken(authParts[1])
-	if err != nil {
-		c.IndentedJSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
-		return
-	}
-	username, err := ec.JWTService.GetUserName(token)
-	if err != nil {
-		c.IndentedJSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
-		return
-	}
-	ev, err := ec.EventsService.GetEventById(id, username)
 
+	ev, err := ec.EventsService.GetEventById(id, authParts[1])
 	if err != nil {
 		c.IndentedJSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
@@ -65,20 +44,9 @@ func (ec EventsController) GetEventById(c *gin.Context) {
 func (ec EventsController) AddEvent(c *gin.Context) {
 	authHeader := c.GetHeader("Authorization")
 	authParts := strings.Split(authHeader, " ")
-	token, err := ec.JWTService.ValidateToken(authParts[1])
-	if err != nil {
-		c.IndentedJSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
-		return
-	}
-	username, err := ec.JWTService.GetUserName(token)
-
-	if err != nil {
-		c.IndentedJSON(401, gin.H{"message": "unauthorized"})
-		return
-	}
 
 	var event domain.Event
-	err = c.ShouldBindJSON(&event)
+	err := c.ShouldBindJSON(&event)
 
 	if err != nil {
 		var validationErrors validator.ValidationErrors
@@ -108,7 +76,7 @@ func (ec EventsController) AddEvent(c *gin.Context) {
 		return
 	}
 
-	ev, err := ec.EventsService.AddEvent(username, event)
+	ev, err := ec.EventsService.AddEvent(authParts[1], event)
 
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, err.Error())
@@ -120,17 +88,23 @@ func (ec EventsController) AddEvent(c *gin.Context) {
 }
 
 func (ec EventsController) UpdateEvent(c *gin.Context) {
+	id := c.Param("id")
 	authHeader := c.GetHeader("Authorization")
 	authParts := strings.Split(authHeader, " ")
-	token, err := ec.JWTService.ValidateToken(authParts[1])
-	if err != nil {
-		c.IndentedJSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
-		return
-	}
-	username, err := ec.JWTService.GetUserName(token)
-	var event domain.Event
-	err = c.ShouldBindJSON(&event)
 
+	e := ec.EventsService.CheckValidity(id, authParts[1])
+	if e != nil {
+		if e.Error() == "unauthorized" {
+			c.IndentedJSON(http.StatusUnauthorized, gin.H{"error": e.Error()})
+			return
+		} else if e != nil {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Invalid Id Format"})
+			return
+		}
+	}
+
+	var event domain.Event
+	err := c.ShouldBindJSON(&event)
 	if err != nil {
 		var validationErrors validator.ValidationErrors
 		if errors, ok := err.(validator.ValidationErrors); ok {
@@ -150,7 +124,7 @@ func (ec EventsController) UpdateEvent(c *gin.Context) {
 			case "Location":
 				errorMessages["location"] = "location is required."
 			case "Date":
-				errorMessages["data"] = "date is required."
+				errorMessages["date"] = "date is required."
 
 			}
 		}
@@ -159,9 +133,7 @@ func (ec EventsController) UpdateEvent(c *gin.Context) {
 		return
 	}
 
-	id := c.Param("id")
-
-	e := ec.EventsService.UpdateEvent(id, event, username)
+	e = ec.EventsService.UpdateEvent(id, event)
 
 	if e != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": e.Error()})
@@ -173,19 +145,8 @@ func (ec EventsController) DeleteEvent(c *gin.Context) {
 	id := c.Param("id")
 	authHeader := c.GetHeader("Authorization")
 	authParts := strings.Split(authHeader, " ")
-	token, err := ec.JWTService.ValidateToken(authParts[1])
-	if err != nil {
-		c.IndentedJSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
-		return
-	}
 
-	username, err := ec.JWTService.GetUserName(token)
-	if err != nil {
-		c.IndentedJSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
-		return
-	}
-
-	err = ec.EventsService.DeleteEvent(id, username)
+	err := ec.EventsService.DeleteEvent(id, authParts[1])
 
 	if err != nil {
 		c.IndentedJSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
