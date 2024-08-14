@@ -10,7 +10,7 @@ import (
 
 type Token struct{}
 
-func (tok Token) GetUserName(t string) (string, error) {
+func (tok Token) ValidateToken(t string) (*jwt.Token, error) {
 	token, e := jwt.Parse(t, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
@@ -20,8 +20,13 @@ func (tok Token) GetUserName(t string) (string, error) {
 	})
 
 	if e != nil || !token.Valid {
-		return "", errors.New("Unauthorized")
+		return nil, errors.New("unauthorized")
 	}
+
+	return token, nil
+}
+
+func (tok Token) GetUserName(token *jwt.Token) (string, error) {
 
 	claims, ok := token.Claims.(jwt.MapClaims)
 

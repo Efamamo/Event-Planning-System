@@ -36,10 +36,9 @@ func main() {
 	authUsecase := usecases.AuthUsecase{AuthRepo: authRepo, PasswordService: passwordService, JWTService: jwtService}
 	authController := api.AuthController{AuthService: authUsecase}
 
-
 	eventRepo := repositories.NewEventsRepo(client)
-	eventUsecase := usecases.EventsService{EventsRepo: eventRepo}
-	eventController := api.EventsController{EventsService: eventUsecase,JWTService: jwtService}
+	eventUsecase := usecases.EventsService{EventsRepo: eventRepo, AuthRepo: authRepo}
+	eventController := api.EventsController{EventsService: eventUsecase, JWTService: jwtService}
 
 	route.StartServer(authController, eventController)
 

@@ -13,9 +13,10 @@ type User struct {
 }
 
 type Event struct {
-	Name        string    `json:"name" bson:"name" binding:"required"`
-	Description string    `json:"description" bson:"description" binding:"required"`
-	Date        time.Time `json:"date" bson:"date" binding:"required"`
-	Location    string    `json:"location" bson:"location" binding:"required"`
-	Owner       string    `json:"owner" bson:"owner" binding:"required"`
+	ID          primitive.ObjectID `json:"_id" bson:"_id"`
+	Name        string             `json:"name" bson:"name" binding:"required"`
+	Description string             `json:"description" bson:"description" binding:"required"`
+	Date        time.Time          `json:"date" bson:"date" binding:"required"`
+	Location    string             `json:"location" bson:"location" binding:"required"`
+	Owner       string             `json:"owner" bson:"owner"`
 }

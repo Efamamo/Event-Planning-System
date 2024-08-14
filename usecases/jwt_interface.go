@@ -1,6 +1,9 @@
 package usecases
 
+import "github.com/dgrijalva/jwt-go"
+
 type IJWTService interface {
 	GenerateToken(string) (string, error)
-	GetUserName(t string) (string, error)
+	ValidateToken(string) (*jwt.Token, error)
+	GetUserName(*jwt.Token) (string, error)
 }
